@@ -1,29 +1,47 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const sections = document.querySelectorAll("section");
-    const header = document.querySelector("header");
+    let taskInput = document.getElementById("taskInput");
+    let taskList = document.getElementById("taskList");
+    let addTaskBtn = document.getElementById("addTaskBtn");
 
-    function fadeInOnScroll() {
-        sections.forEach(section => {
-            const sectionTop = section.getBoundingClientRect().top;
-            const windowHeight = window.innerHeight;
-            if (sectionTop < windowHeight - 100) {
-                section.classList.add("show");
-            }
+    function loadTasks() {
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        taskList.innerHTML = "";
+        tasks.forEach((task, index) => {
+            let newTask = document.createElement("li");
+            newTask.textContent = task;
+
+            // Add delete button
+            let deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "❌";
+            deleteBtn.classList.add("deleteBtn");
+            deleteBtn.addEventListener("click", function () {
+                removeTask(index);
+            });
+
+            newTask.appendChild(deleteBtn);
+            taskList.appendChild(newTask);
         });
     }
 
-    function shrinkHeader() {
-        if (window.scrollY > 50) {
-            header.classList.add("shrink");
+    function addTask() {
+        if (taskInput.value.trim() !== "") {
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.push(taskInput.value);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            loadTasks();
+            taskInput.value = "";
         } else {
-            header.classList.remove("shrink");
+            alert("Please enter a task!");
         }
     }
 
-    window.addEventListener("scroll", function () {
-        fadeInOnScroll();
-        shrinkHeader();
-    });
+    function removeTask(index) {
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.splice(index, 1);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        loadTasks();
+    }
 
-    fadeInOnScroll();
+    addTaskBtn.addEventListener("click", addTask);
+    loadTasks();
 });
