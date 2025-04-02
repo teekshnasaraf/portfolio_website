@@ -1,26 +1,47 @@
-function addTask() {
+document.addEventListener("DOMContentLoaded", function () {
     let taskInput = document.getElementById("taskInput");
-    let taskText = taskInput.value.trim();
-    
-    if (taskText === "") return;
-
     let taskList = document.getElementById("taskList");
+    let addTaskBtn = document.getElementById("addTaskBtn");
 
-    let li = document.createElement("li");
-    li.textContent = taskText;
+    function loadTasks() {
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        taskList.innerHTML = "";
+        tasks.forEach((task, index) => {
+            let newTask = document.createElement("li");
+            newTask.textContent = task;
 
-    let deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "❌";
-    deleteBtn.onclick = function() {
-        taskList.removeChild(li);
-    };
+            // Add delete button
+            let deleteBtn = document.createElement("button");
+            deleteBtn.textContent = "❌";
+            deleteBtn.classList.add("deleteBtn");
+            deleteBtn.addEventListener("click", function () {
+                removeTask(index);
+            });
 
-    li.appendChild(deleteBtn);
+            newTask.appendChild(deleteBtn);
+            taskList.appendChild(newTask);
+        });
+    }
 
-    li.onclick = function() {
-        li.classList.toggle("completed");
-    };
+    function addTask() {
+        if (taskInput.value.trim() !== "") {
+            let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.push(taskInput.value);
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+            loadTasks();
+            taskInput.value = "";
+        } else {
+            alert("Please enter a task!");
+        }
+    }
 
-    taskList.appendChild(li);
-    taskInput.value = "";
-}
+    function removeTask(index) {
+        let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+        tasks.splice(index, 1);
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        loadTasks();
+    }
+
+    addTaskBtn.addEventListener("click", addTask);
+    loadTasks();
+});
